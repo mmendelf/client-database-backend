@@ -8,9 +8,6 @@ const { getClients, getClientByName, createClient, deleteClientById } = require(
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-app.get('/', (req, res) => {
-    res.status(200).json({ msg: 'הצלחה!' })
-})
 
 app.use('/clients', getClients)
 app.get('/clients', getClientByName)
