@@ -1,23 +1,22 @@
 const { writeFileSync, readFileSync } = require('fs');
-const clients = require('./DB.json');
+
+const path = './DB.json'
 
 const getData = (path) => {
     const jsonData = readFileSync(path)
     return JSON.parse(jsonData)
 }
 
-const saveData = (path, data) => {
+const saveData = async (path, data) => {
     const stringifyData = JSON.stringify(data)
-    writeFileSync(path, stringifyData)
+    await writeFileSync(path, stringifyData)
 }
-
-const path = './DB.json'
-const existClients = getData(path);
 
 module.exports = {
 
     getClients: (req, res, next) => {
         if (Object.keys(req.query).length === 0) {
+            let clients = getData(path);
             if (clients.length !== 0) {
                 res.status(200).json(clients)
             }
@@ -28,8 +27,9 @@ module.exports = {
 
     getClientByName: (req, res) => {
         if (Object.keys(req.query).length !== 0) {
+            let clients = getData(path);
             const clientQ = req.query;
-            const filteredClients = clients.filter(client => client.name === clientQ.name)
+            const filteredClients = clients.filter(client => client.name.toLowerCase().includes(clientQ.name.toLowerCase()))
             if (filteredClients.length !== 0) {
                 res.status(200).json(filteredClients);
             }
@@ -38,6 +38,7 @@ module.exports = {
     },
 
     createClient: (req, res) => {
+        let existClients = getData(path);
         const newClient = {
             name: req.body.name,
             id: req.body.id,
@@ -51,6 +52,7 @@ module.exports = {
 
     deleteClientById: (req, res) => {
         const clientID = req.params.clientID
+        let existClients = getData(path);
         const filterClient = existClients.filter(client => client.id != clientID)
         if (existClients.length === filterClient.length) {
             res.json({ msg: `client ${clientID} does not exist` })
