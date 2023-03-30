@@ -6,4 +6,4 @@ const server = http.createServer(app)
 
 
 app.listen(port, () => console.log(`app listening on port ${port}!\n
-open in the browser http://localhost:3770/`))
+open in the browser http://localhost:3770/clients`))

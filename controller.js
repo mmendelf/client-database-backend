@@ -1,64 +1,89 @@
-const { writeFileSync, readFileSync } = require('fs');
+const mongoose = require('mongoose');
 
-const path = './DB.json'
+const password = encodeURIComponent(process.env.PASSWORD)
 
-const getData = (path) => {
-    const jsonData = readFileSync(path)
-    return JSON.parse(jsonData)
-}
+mongoose.connect(`mongodb+srv://${process.env.USERNAME}:${password}@atlascluster.nfdv8zv.mongodb.net/?retryWrites=true&w=majority`,
+    { useNewUrlParser: true, useUnifiedTopology: true })
 
-const saveData = async (path, data) => {
-    const stringifyData = JSON.stringify(data)
-    await writeFileSync(path, stringifyData)
-}
+mongoose.connection.on('connected', () => {
+    console.log('connected')
+})
+
+const clientSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    id: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    ip: {
+        type: String,
+        required: true
+    },
+    phone: {
+        type: String,
+        required: true
+    }
+});
+
+
+
+const Client = mongoose.model('Client', clientSchema);
 
 module.exports = {
 
-    getClients: (req, res, next) => {
-        if (Object.keys(req.query).length === 0) {
-            let clients = getData(path);
-            if (clients.length !== 0) {
-                res.status(200).json(clients)
+    getClients: async (req, res, next) => {
+        if (Object.keys(req.query).length == 0) {
+            try {
+                const clients = await Client.find();
+                if (clients.length != 0) {
+                    return res.status(200).json(clients)
+                }
+                res.json({ msg: 'No data to display' })
+            } catch (err) {
+                res.status(400).json({ message: err.message });
             }
-            res.json({ msg: 'No data to display' })
         }
         next();
     },
-
-    getClientByName: (req, res) => {
+    getClientByName: async (req, res) => {
         if (Object.keys(req.query).length !== 0) {
-            let clients = getData(path);
-            const clientQ = req.query;
-            const filteredClients = clients.filter(client => client.name.toLowerCase().includes(clientQ.name.toLowerCase()))
-            if (filteredClients.length !== 0) {
-                res.status(200).json(filteredClients);
+            try {
+                const clientQ = await req.query.name;
+                const clients = await Client.find({ name: { $regex: `${clientQ}`, $options: 'i' } });
+                if (clients.length != 0) {
+                    return res.status(200).json(clients);
+                }
+                res.json({ msg: 'No data to display' })
             }
-            res.json({ msg: 'No data to display' })
+            catch (err) {
+                res.status(400).json({ message: err.message });
+            }
         }
     },
 
-    createClient: (req, res) => {
-        let existClients = getData(path);
-        const newClient = {
-            name: req.body.name,
-            id: req.body.id,
-            ip: req.body.ip,
-            phone: req.body.phone
-        };
-        existClients.push(newClient)
-        saveData(path, existClients);
-        res.status(200).send(`The client ${newClient.name} was been created!!`)
-    },
-
-    deleteClientById: (req, res) => {
-        const clientID = req.params.clientID
-        let existClients = getData(path);
-        const filterClient = existClients.filter(client => client.id != clientID)
-        if (existClients.length === filterClient.length) {
-            res.json({ msg: `client ${clientID} does not exist` })
+    createClient: async (req, res) => {
+        try {
+            const client = new Client(req.body);
+            await client.save();
+            res.status(200).json(client);
+        } catch (err) {
+            res.status(400).json({ message: err.message });
         }
-        saveData(path, filterClient)
-        res.status(200).send(`client ${clientID} wes been deleted`)
     },
 
+    deleteClientById: async (req, res) => {
+        try {
+            const { clientID } = req.params;
+            let find = await Client.findOneAndRemove({ _id: clientID })
+            if (find)
+                return res.json({ message: 'Client deleted successfully' });
+            res.json({ message: 'Client not exist' })
+        } catch (err) {
+            res.status(400).json({ message: err.message });
+        }
+    }
 }

@@ -1,13 +1,14 @@
 const path = require('path');
 const express = require('express');
+const bodyParser = require('body-parser');
 const cors = require('cors');
+
 
 const app = express();
 
 const { getClients, getClientByName, createClient, deleteClientById } = require('./controller')
 
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+app.use(bodyParser.json());
 
 app.use(
     cors({
