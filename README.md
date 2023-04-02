@@ -9,16 +9,15 @@ To install and run the application locally, follow these steps:
 
 Clone the repository to your local machine.
 
+Make sure you have a nodemon.json file with the environment variables.
+
 Install the necessary dependencies using the following command:
 
-Copy code
 ```bash
 npm install
 ```
 Start the server using the following command:
 
-sql
-Copy code
 ```bash
 npm start
 ```
