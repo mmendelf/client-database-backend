@@ -1,10 +1,10 @@
 # client-database-backend
-Clients Database Website
+
 This is a simple web application that serves as a database for managing client information. The application allows users to view, add, and remove clients, as well as filter clients based on specific criteria.
 
 The application is built using Node.js for the server-side logic and MongoDB for data storage. The user interface is not provided in this project.
 
-Installation
+##Installation
 To install and run the application locally, follow these steps:
 
 Clone the repository to your local machine.
@@ -12,15 +12,19 @@ Clone the repository to your local machine.
 Install the necessary dependencies using the following command:
 
 Copy code
+```bash
 npm install
+```
 Start the server using the following command:
 
 sql
 Copy code
+```bash
 npm start
-The server will start running on port 3770. You can access the API endpoints using a tool like Postman or any front-end application.
+```
+The server will start running. You can access the API endpoints using a tool like Postman or any front-end application.
 
-API Endpoints
+##API Endpoints
 The application provides the following API endpoints:
 
 GET /clients: Returns a list of all clients in the database.
